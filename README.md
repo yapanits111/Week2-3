@@ -103,7 +103,7 @@ fullstack-ai-dashboard/
    DB_PORT=5432
    DB_DATABASE=logistics_db
    DB_USERNAME=postgres
-   DB_PASSWORD=password
+   DB_PASSWORD="password"
    ```
 
 3. **Start all services**
@@ -277,5 +277,3 @@ For technical support, please create an issue in the repository with:
 - Docker logs if applicable
 
 ---
-
-Built with ❤️ for modern logistics management
