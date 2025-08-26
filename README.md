@@ -275,7 +275,3 @@ For technical support, please create an issue in the repository with:
 - Steps to reproduce
 - System information
 - Docker logs if applicable
-
----
-
-Built with ❤️ for modern logistics management
