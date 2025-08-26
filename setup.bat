@@ -1,3 +1,4 @@
+REM for Windows
 @echo off
 REM Fullstack AI Dashboard Setup Script for Windows
 echo 🚀 Setting up Fullstack AI-Driven Delivery Dashboard...

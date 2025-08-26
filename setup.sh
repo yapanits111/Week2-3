@@ -1,3 +1,4 @@
+#for Linux/macOS
 #!/bin/bash
 
 # Fullstack AI Dashboard Setup Script
