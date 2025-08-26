@@ -4,19 +4,13 @@ A comprehensive logistics management system featuring driver profiling, AI-power
 
 ## 🚀 Features
 
-### Week 2: Driver Profiling Dashboard
-- **Complete Driver Management**: Track drivers with comprehensive profiles
-- **Drug Test Tracking**: Monitor drug test results and compliance
-- **Violation Management**: Record and track traffic violations and infractions
-- **Performance Analytics**: Calculate performance scores based on multiple factors
-- **Credential Verification**: Manage and validate driver credentials
-- **Customer Feedback**: Collect and analyze customer ratings and feedback
-
 ### Week 3: AI-Powered ETA Prediction
 - **Machine Learning Model**: Random Forest model for delivery time prediction
 - **Real-time Tracking**: GPS-based position tracking and distance calculation
 - **Proximity Notifications**: Smart notifications based on delivery proximity
 - **Historical Data Analysis**: Learn from past delivery patterns
+
+<img width="1309" height="875" alt="Screenshot 2025-08-26 181244" src="https://github.com/user-attachments/assets/d0ed641b-25e3-49a6-b6ba-2260f7bdaac1" />
 
 ### Analytics & Reporting
 - **Metabase Integration**: Professional dashboards and reporting
