@@ -1,9 +1,3 @@
-# Fullstack AI-Driven Delivery Dashboard with Profiling & Analytics
-
-A comprehensive logistics management system featuring driver profiling, AI-powered ETA prediction, and real-time analytics.
-
-## 🚀 Features
-
 ### Week 3: AI-Powered ETA Prediction
 - **Machine Learning Model**: Random Forest model for delivery time prediction
 - **Real-time Tracking**: GPS-based position tracking and distance calculation
