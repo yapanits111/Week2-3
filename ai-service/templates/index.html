@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ETA Tracker</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ready {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.not-ready {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .coordinates-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .sample-coords {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚚 ETA Delivery Tracker</h1>
+        <p>AI-powered delivery time estimation with proximity notifications</p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Calculate Delivery ETA</h2>
+            <div>
+                <span id="modelStatus" class="status">Checking...</span>
+                <button onclick="trainModel()" id="trainBtn">Train Model</button>
+            </div>
+        </div>
+        
+        <div class="coordinates-grid">
+            <div>
+                <h3>📍 Current Location</h3>
+                <div class="input-group">
+                    <label for="currentLat">Latitude:</label>
+                    <input type="number" id="currentLat" value="14.5995" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="currentLng">Longitude:</label>
+                    <input type="number" id="currentLng" value="120.9842" step="any">
+                </div>
+            </div>
+            
+            <div>
+                <h3>🎯 Destination</h3>
+                <div class="input-group">
+                    <label for="dropoffLat">Latitude:</label>
+                    <input type="number" id="dropoffLat" value="14.6091" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="dropoffLng">Longitude:</label>
+                    <input type="number" id="dropoffLng" value="121.0223" step="any">
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="getETA()" id="predictBtn" style="width: 100%; font-size: 16px;">
+            🔮 Predict ETA
+        </button>
+        
+        <div id="result" style="display: none;"></div>
+        
+        <div class="sample-coords">
+            <h3>📌 Sample Coordinates (Manila Area)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                <div><strong>Makati CBD:</strong> 14.5547, 121.0244</div>
+                <div><strong>BGC:</strong> 14.5176, 121.0509</div>
+                <div><strong>Ortigas:</strong> 14.5866, 121.0611</div>
+                <div><strong>Quezon City:</strong> 14.6760, 121.0437</div>
+                <div><strong>Manila:</strong> 14.5995, 120.9842</div>
+                <div><strong>Pasig:</strong> 14.5764, 121.0851</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let modelTrained = false;
+
+        async function checkModelStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('modelStatus');
+                const predictBtn = document.getElementById('predictBtn');
+                
+                if (data.model_trained) {
+                    statusElement.textContent = 'Model Ready';
+                    statusElement.className = 'status ready';
+                    predictBtn.disabled = false;
+                    predictBtn.textContent = '🔮 Predict ETA';
+                    modelTrained = true;
+                } else {
+                    statusElement.textContent = 'Model Not Trained';
+                    statusElement.className = 'status not-ready';
+                    predictBtn.disabled = true;
+                    predictBtn.textContent = 'Train Model First';
+                    modelTrained = false;
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+                document.getElementById('modelStatus').textContent = 'Service Unavailable';
+            }
+        }
+
+        async function trainModel() {
+            const trainBtn = document.getElementById('trainBtn');
+            trainBtn.disabled = true;
+            trainBtn.textContent = 'Training...';
+            
+            try {
+                const response = await fetch('/train_model', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Model trained successfully!\nMAE: ${data.results.mae.toFixed(2)} minutes\nSamples: ${data.results.samples_trained}`);
+                    checkModelStatus();
+                } else {
+                    alert('Training failed: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Training error:', error);
+                alert('Error training model. Check console for details.');
+            } finally {
+                trainBtn.disabled = false;
+                trainBtn.textContent = 'Train Model';
+            }
+        }
+
+        async function getETA() {
+            if (!modelTrained) {
+                alert('Please train the model first!');
+                return;
+            }
+
+            const predictBtn = document.getElementById('predictBtn');
+            predictBtn.disabled = true;
+            predictBtn.textContent = '🔄 Calculating...';
+            
+            try {
+                const response = await fetch('/predict_eta', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        current_lat: parseFloat(document.getElementById('currentLat').value),
+                        current_lng: parseFloat(document.getElementById('currentLng').value),
+                        dropoff_lat: parseFloat(document.getElementById('dropoffLat').value),
+                        dropoff_lng: parseFloat(document.getElementById('dropoffLng').value)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>📊 Prediction Result</h3>
+                    <div style="font-size: 18px; margin: 10px 0;">
+                        <div><strong>🕐 ETA:</strong> ${data.eta_minutes} minutes</div>
+                        <div><strong>📏 Distance:</strong> ${data.distance_km} km</div>
+                        <div><strong>📢 Status:</strong> ${data.message}</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                            <strong>⏰ Calculated at:</strong> ${new Date(data.timestamp).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Prediction error:', error);
+                alert('Error predicting ETA. Check console for details.');
+            } finally {
+                predictBtn.disabled = false;
+                predictBtn.textContent = '🔮 Predict ETA';
+            }
+        }
+
+        // Initialize
+        checkModelStatus();
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(checkModelStatus, 30000);
+    </script>
+</body>
+</html>
